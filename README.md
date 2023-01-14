@@ -1,6 +1,6 @@
 # AtlanteanNotes Faucet Application
 
-This is a faucet application that drips AtlanteanNotes (ATN20 tokens), in a way that will never lead to shortage, even if users mint up to the INITIAL_SUPPLY `(see helper-hardhat.config)` they will only be creating newer Notes for their addresses.
+This is a faucet application that drips AtlanteanNotes (ATN20 tokens), in a way that will never lead to shortage, even if users mint up to the INITIAL_SUPPLY; see `( helper-hardhat.config)` they will only be creating newer Notes for their addresses.
 The application uses the standard erc20 implementation to create the AtlanteanNotes or ATN20 tokens. 
 Users input their address and call the mint function to mint 1e18 of the ATNs.
 
