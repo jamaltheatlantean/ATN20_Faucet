@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REQUEST ATN</title>
+
+    <style>
+      body {
+            font-weight: bolder;
+            color: rgb(249, 242, 242) ;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            
+      }
+        
+		  .button {
+  		  border: none;
+  		  color: white;
+  		  padding: 16px 32px;
+  		  text-align: center;
+  		  text-decoration: none;
+  		  display: inline-block;
+  		  font-size: 16px;
+  		  margin: 4px 2px;
+  		  transition-duration: 0.4s;
+  		  cursor: pointer;
+		  }
+
+      .button1 {
+        font-weight: bolder;
+        background-color: #5bf4f469;
+        color:rgb(255, 255, 254);
+        border: 2px solid rgb(199, 196, 9);
+      }
+
+      .button1:hover {
+        background-color: rgba(3, 179, 248, 0.937);
+        color: rgb(255, 251, 10);
+      }
+
+      .image {
+        position: relative;
+        width: 100%;
+      }
+
+      h2 {
+        position: relative;
+        width: 100%;
+        color: white;
+        font: bold 24px/45px Helvetica, Sans-serif;
+        letter-spacing: -1px;
+        background: rgb(0, 0, 0);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 20px;
+			  text-shadow: 4px 4px black;
+      }
+
+      h2 span.spacer {
+        padding: 0 5px;
+      }
+
+      .container {
+        position: relative;
+      text-align: center;
+      }
+
+      .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      footer {
+        text-align: center;
+        padding: 3px;
+        background-color: darkcyan;
+      color: white;
+      }
+        
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="https://wallpapercave.com/wp/wp4254565.jpg" alt=""/> 
+        <div class = "centered">
+            <h2><span> WELCOME, ATLANTEAN! <span class="spacer"></span><br /><span class="spacer"></span> Claim your currency</span></h2>
+            <label for="market-price">Current market Value:$0.00</label><br />
+            <input type="text"id="to" />
+			<div>
+            <button id="request-button" onClick="requestATN()" button class = "button button1">Mint</button>
+			</div>  
+        </div>
+    </div>  
+    <footer>
+        <p>Leave a star in the github and click the link to follow me on <a href="https://twitter.com/thatatlantean">twitter</a>
+        </p>
+    </footer>  
+</body>
+
+
+<script
+src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+type="application/javascript"
+></script>
+
+<script> 
+  const AtlanteanNotesContractAddress = "0xb5d3ba82016E8CcA101d3f8b8402532c66B2071c";
+  const AtlanteanNotesContractABI = [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "initialSupply",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "ATN20__DailyLimitReached",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_requestAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ATNSent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "subtractedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "decreaseAllowance",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "addedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "increaseAllowance",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lastReceived",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        }
+      ],
+      "name": "requestATN",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "requestAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+
+  let AtlanteanNotesContract;
+  let signer;
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum, "goerli");
+    provider.send("eth_requestAccounts", []).then(() => {
+        provider.listAccounts().then((accounts) => {
+            signer = provider.getSigner(accounts[0]);
+            AtlanteanNotesContract = new ethers.Contract(
+                AtlanteanNotesContractAddress,
+                AtlanteanNotesContractABI,
+                signer
+            );
+        });
+    });
+
+  async function requestATN() {
+    // Get the user's Ethereum address
+    const _to = document.getElementById("to").value;
+    // Call the requestATN function, passing in the user's address as the "_to" argument
+    const requestATNPromise = AtlanteanNotesContract.functions.requestATN(_to);
+    await requestATNPromise;
+  }
+
+</script>
+</html>
